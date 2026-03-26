@@ -16,7 +16,6 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-
     @PostMapping("/create")
     public Long createUser(@RequestBody User user){
         userService.createUser(user);

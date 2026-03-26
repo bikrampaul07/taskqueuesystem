@@ -3,6 +3,7 @@ package com.bikram.springbootproject.service;
 import com.bikram.springbootproject.dto.EmailPayload;
 import com.bikram.springbootproject.model.Task;
 import com.bikram.springbootproject.model.TaskStatus;
+import com.bikram.springbootproject.model.TaskType;
 import com.bikram.springbootproject.repo.TaskRepo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
@@ -19,31 +20,22 @@ import java.util.concurrent.ThreadLocalRandom;
 @Slf4j
 @Service
 public class TaskExecutorService {
-
     @Autowired
     private TaskRepo repo;
-
     @Autowired
     private EmailService emailService;
-
     @Autowired
     private ObjectMapper objectMapper;
 
     @Async
     public void execute(UUID taskId){
-
         Task task=repo.findById(taskId).orElseThrow(()->new RuntimeException("Task not found"));
-
         long start=System.currentTimeMillis();
-
         try {
             task.setStatus(TaskStatus.RUNNING);
             repo.save(task);
-
-            switch (task.getType()){
-                case EMAIL_SEND-> handleMail(task);
-                case CSV_IMPORT->handleCSV(task);
-
+            if(task.getType() == TaskType.EMAIL_SEND){
+                handleMail(task);
             }
             task.setStatus(TaskStatus.COMPLETED);
             task.setResult("Success");
@@ -55,13 +47,10 @@ public class TaskExecutorService {
         finally {
             long end = System.currentTimeMillis();
             task.setExecutionTime(end-start);
-
             task.setUpdatedAt(LocalDateTime.now());
             repo.save(task);
         }
-
     }
-
     private void handleMail(Task task) throws InterruptedException, JsonProcessingException {
         EmailPayload load = objectMapper.readValue(task.getPayload(), EmailPayload.class);
         emailService.mailSend(load);
@@ -69,8 +58,5 @@ public class TaskExecutorService {
         Thread.sleep(delay);
     }
 
-    private void handleCSV(Task task) throws Exception {
-
-    }
 
 }

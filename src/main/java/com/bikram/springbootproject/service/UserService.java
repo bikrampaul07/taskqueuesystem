@@ -57,5 +57,4 @@ public class UserService {
     public List<User> getUserByTaskId(UUID taskId){
         return userRepo.findByTasks_Id(taskId);
     }
-
 }
