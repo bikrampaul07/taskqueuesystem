@@ -43,7 +43,7 @@ public class TaskExecutorService {
             switch (task.getType()){
                 case EMAIL_SEND-> handleMail(task);
                 case CSV_IMPORT->handleCSV(task);
-                case REPORT_GENERATION-> handleReport(task);
+
             }
             task.setStatus(TaskStatus.COMPLETED);
             task.setResult("Success");
@@ -64,7 +64,7 @@ public class TaskExecutorService {
 
     private void handleMail(Task task) throws InterruptedException, JsonProcessingException {
         EmailPayload load = objectMapper.readValue(task.getPayload(), EmailPayload.class);
-        emailService.mailSend(load,task.getId().toString());
+        emailService.mailSend(load);
         int delay = ThreadLocalRandom.current().nextInt(2000,5000);
         Thread.sleep(delay);
     }
@@ -73,8 +73,4 @@ public class TaskExecutorService {
 
     }
 
-    private void handleReport(Task task) throws Exception {
-        System.out.println("handling report:" + task.getPayload());
-        Thread.sleep(2000);
-    }
 }

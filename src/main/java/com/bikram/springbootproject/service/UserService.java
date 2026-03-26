@@ -9,8 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -43,12 +42,12 @@ public class UserService {
 
     public void assignTask(UUID taskId, List<Long> userIds){
         Task task = taskRepo.findById(taskId).orElseThrow(()->new RuntimeException("task not found"));
-        List<User> users=userRepo.findAllById(userIds);
-        if(users.isEmpty()){
-            throw new RuntimeException("user not found");
-        }
+        List<User> users=task.getUsers();
+        List<User> newUsers=userRepo.findAllById(userIds);
+        Set<User> mergedUsers=new HashSet<>(users);
+        mergedUsers.addAll(newUsers);
 
-        task.setUsers(users);
+        task.setUsers(new ArrayList<>(mergedUsers));
         taskRepo.save(task);
 
         log.info("task_id={} assigned users = {}",taskId,userIds);

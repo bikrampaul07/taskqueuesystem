@@ -22,6 +22,9 @@ public class Task {
     @Column(columnDefinition = "VARCHAR")
     private TaskType type;
 
+
+    private String taskName;
+
     @Column(columnDefinition = "TEXT")
     private String payload;
 

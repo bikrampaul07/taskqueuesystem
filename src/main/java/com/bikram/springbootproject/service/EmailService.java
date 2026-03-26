@@ -15,16 +15,16 @@ public class EmailService {
         this.mailSender = mailSender;
     }
 
-    public void mailSend(EmailPayload emailPayload,String taskId){
+    public void mailSend(EmailPayload emailPayload){
         try{
             SimpleMailMessage message = new SimpleMailMessage();
             message.setTo(emailPayload.getTo());
             message.setSubject(emailPayload.getSubject());
             message.setText(emailPayload.getBody());
             mailSender.send(message);
-            log.info("taskId = {} and emailPayLoad = {}",taskId,emailPayload.getTo());
+            log.info("emailPayLoad = {}",emailPayload.getTo());
         } catch (Exception e) {
-            log.error("taskId = {} email failed ",taskId,e);
+            log.error("email failed ",e);
         }
 
     }

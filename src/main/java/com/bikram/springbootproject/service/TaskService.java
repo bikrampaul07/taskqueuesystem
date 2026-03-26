@@ -25,18 +25,16 @@ public class TaskService {
     @Autowired
     private TaskExecutorService executorService;
 
-    public UUID createTask(TaskType type, Object payload) throws Exception{
+    public UUID createTask(String taskName, Object payload) throws Exception{
         Task task=new Task();
-        task.setType(type);
+        task.setTaskName(taskName);
+        task.setType(TaskType.OTHERS);
         String json = objectMapper.writeValueAsString(payload);
         task.setPayload(json);
         repo.save(task);
         UUID taskId=task.getId();
-        if(type == TaskType.EMAIL_SEND){
-            executorService.execute(taskId);
-        }
-        log.info("id={} and type ={}",task.getId(),type);
-        return task.getId();
+        log.info("id={} and taskName ={}",task.getId(),task.getTaskName());
+        return taskId;
     }
 
     public Task findTask(String id){
@@ -55,6 +53,11 @@ public class TaskService {
         return repo.findByStatus(status);
     }
 
-
+    public Task updateTask(UUID taskId,TaskStatus status){
+       Task task= repo.findById(taskId).orElseThrow(()->new RuntimeException("task not found"));
+        task.setStatus(status);
+        repo.save(task);
+        return task;
+    }
 
 }
