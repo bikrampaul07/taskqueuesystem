@@ -5,6 +5,7 @@ import com.bikram.springbootproject.dto.TaskReq;
 import com.bikram.springbootproject.model.Task;
 import com.bikram.springbootproject.model.TaskStatus;
 import com.bikram.springbootproject.model.TaskType;
+import com.bikram.springbootproject.service.EmailService;
 import com.bikram.springbootproject.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -19,10 +20,13 @@ public class TaskController {
     @Autowired
     private TaskService service;
 
+    @Autowired
+    private EmailService emailService;
+
 
     @PostMapping()
     public UUID createTask(@RequestBody TaskReq req) throws Exception {
-     return service.createTask(req.getType(),req.getPayload());
+      return service.createTask(req.getTaskName(),req.getPayload());
  }
 
     @GetMapping("/{id}")
@@ -41,10 +45,16 @@ public class TaskController {
     }
 
     @PostMapping("/email")
-    public  UUID sendMail(@RequestBody EmailPayload payload) throws Exception {
+    public  String sendMail(@RequestBody EmailPayload payload) throws Exception {
         if (payload.getTo() == null || payload.getTo().isEmpty()) {
             throw new RuntimeException("Recipient email is required");
         }
-        return service.createTask(TaskType.EMAIL_SEND,payload);
+        emailService.mailSend(payload);
+        return "SUCCESS";
+    }
+
+    @PostMapping("/status/update")
+    public Task updateStatus(@RequestParam UUID taskId,@RequestBody TaskStatus status){
+       return service.updateTask(taskId,status);
     }
 }

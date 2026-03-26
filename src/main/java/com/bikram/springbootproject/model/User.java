@@ -1,6 +1,7 @@
 package com.bikram.springbootproject.model;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -21,6 +22,7 @@ public class User {
     private String email;
 
     @ManyToMany(mappedBy = "users")
+    @JsonIgnore
     private List<Task> tasks;
 
 

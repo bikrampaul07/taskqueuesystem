@@ -5,7 +5,6 @@ import lombok.Data;
 
 @Data
 public class TaskReq {
-    public TaskType type;
+    public String taskName;
     public Object payload;
-
 }
