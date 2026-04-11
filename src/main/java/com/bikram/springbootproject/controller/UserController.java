@@ -35,7 +35,6 @@ public class UserController {
 
     @PostMapping("/assign/{taskId}")
     public String assignTask(@PathVariable UUID taskId,@RequestBody List<Long> userIds){
-
         userService.assignTask(taskId,userIds);
         return "Task assigned successfully";
     }

@@ -13,6 +13,11 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Table(name = "task", indexes = {
+        // Speed up the worker's queue poll queries
+        @Index(name = "idx_task_status", columnList = "status"),
+        @Index(name = "idx_task_priority_created", columnList = "priority, createdAt")
+})
 public class Task {
     @Id
     @GeneratedValue
@@ -22,17 +27,27 @@ public class Task {
     @Column(columnDefinition = "VARCHAR")
     private TaskType type;
 
-
+    @Column(nullable = false)
     private String taskName;
 
     @Column(columnDefinition = "TEXT")
     private String payload;
 
+    @Column(nullable = false)
+    private int priority;
+
+    @Column(nullable = false)
+    private int retryCount = 0;
+
+    @Column(nullable = false)
+    private int maxRetries = 5;
+
+    private LocalDateTime nextRetryAt;
+
     @Enumerated(EnumType.STRING)
     private TaskStatus status;
 
     private Long executionTime;
-
     private  String result;
     private String error;
     private LocalDateTime createdAt;
