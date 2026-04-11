@@ -1,7 +1,7 @@
 package com.bikram.springbootproject.controller;
 
-import com.bikram.springbootproject.dto.EmailPayload;
-import com.bikram.springbootproject.dto.TaskReq;
+import com.bikram.springbootproject.dto.*;
+import com.bikram.springbootproject.dto.TaskStatusResponse;
 import com.bikram.springbootproject.model.Task;
 import com.bikram.springbootproject.model.TaskStatus;
 import com.bikram.springbootproject.model.TaskType;
@@ -24,9 +24,14 @@ public class TaskController {
     private EmailService emailService;
 
 
-    @PostMapping()
-    public UUID createTask(@RequestBody TaskReq req) throws Exception {
-      return service.createTask(req.getTaskName(),req.getPayload());
+//    @PostMapping()
+//    public UUID createTask(@RequestBody TaskReq req) throws Exception {
+//      return service.createTask(req.getTaskName(), req.getPayload());
+// }
+
+ @PostMapping()
+ public TaskSubmitResponse submitTask(@RequestBody TaskSubmitRequest request) throws Exception {
+        return service.submitTask(request);
  }
 
     @GetMapping("/{id}")
@@ -35,13 +40,17 @@ public class TaskController {
  }
 
     @GetMapping()
-    public List<Task> filterTaskByStatus(@RequestParam TaskStatus status){
-        return service.filterTaskByStatus(status);
+    public List<TaskStatusResponse> filterTaskByStatus(@RequestParam TaskStatus status){
+        return service.filterByStatus(status);
+    }
+    @GetMapping("/allTasks")
+    public List<TaskStatusResponse> findAllTasks(){
+     return  service.getAllTasks();
     }
 
     @GetMapping("/filter")
-    public List<Task> filterTask(@RequestParam TaskStatus status, @RequestParam TaskType type){
-        return  service.filterTask(status,type);
+    public List<TaskStatusResponse> filterTask(@RequestParam TaskStatus status, @RequestParam TaskType type){
+        return  service.filterByStatusAndType(status,type);
     }
 
     @PostMapping("/email")
@@ -54,7 +63,7 @@ public class TaskController {
     }
 
     @PostMapping("/status/update")
-    public Task updateStatus(@RequestParam UUID taskId,@RequestBody TaskStatus status){
-       return service.updateTask(taskId,status);
+    public TaskStatusResponse updateStatus(@RequestParam UUID taskId,@RequestBody TaskStatus status){
+       return service.updateStatus(taskId,status);
     }
 }

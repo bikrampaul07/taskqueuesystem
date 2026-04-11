@@ -29,6 +29,7 @@ public class UserService {
             throw new RuntimeException("Email is already registered");
         }
         userRepo.save(user);
+
         return user.getId();
     }
 
@@ -45,11 +46,22 @@ public class UserService {
         List<User> users=task.getUsers();
         List<User> newUsers=userRepo.findAllById(userIds);
         Set<User> mergedUsers=new HashSet<>(users);
-        mergedUsers.addAll(newUsers);
+        for(Long id : userIds){
+            boolean found = false;
+            for (User user : newUsers){
+                if(user.getId().equals(id)){
+                    found = true;
+                    break;
+                }
 
+            }
+            if (!found) {
+                throw new RuntimeException("User not found: " + id);
+            }
+        }
+        mergedUsers.addAll(newUsers);
         task.setUsers(new ArrayList<>(mergedUsers));
         taskRepo.save(task);
-
         log.info("task_id={} assigned users = {}",taskId,userIds);
 
     }

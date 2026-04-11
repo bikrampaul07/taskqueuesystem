@@ -26,7 +26,8 @@ public class CsvTaskService {
     private final TaskRepo taskRepository;
 
     /**
-     * Uploads, validates, and saves tasks from a CSV file.
+     * Uploads, validates, and saves tasks from a multipart CSV file.
+     * Used by POST /api/tasks/csv/upload
      */
     public CsvUploadResponse uploadTasks(MultipartFile file) {
         if (!CsvHelper.hasCsvFormat(file)) {
@@ -45,7 +46,6 @@ public class CsvTaskService {
 
         for (CsvTaskDto dto : csvRows) {
             List<CsvRowError> rowErrors = CsvTaskValidator.validate(dto);
-
             if (!rowErrors.isEmpty()) {
                 allErrors.addAll(rowErrors);
                 log.warn("Row {} has {} validation error(s)", dto.getRowNumber(), rowErrors.size());
@@ -73,29 +73,29 @@ public class CsvTaskService {
     }
 
     /**
-     * Exports all tasks from DB to a CSV file as a stream.
+     * Exports all tasks from DB to a downloadable CSV stream.
+     * Used by GET /api/tasks/csv/export
      */
     public ByteArrayInputStream exportTasksToCsv() {
         List<Task> tasks = taskRepository.findAll();
         return CsvHelper.tasksToCSV(tasks);
     }
 
-    // -------------------------------------------------------------------------
-    // Private helper
-    // -------------------------------------------------------------------------
+    // ── private helpers ────────────────────────────────────────────────────
 
     private Task mapToTask(CsvTaskDto dto) {
         Task task = new Task();
         task.setTaskName(dto.getTaskName());
-        task.setType(TaskType.valueOf(dto.getType().toUpperCase()));
+        // CSV_IMPORT in old CSVs maps to CSV_PROCESS; handle both for backwards compatibility
+        String typeStr = dto.getType().toUpperCase();
+        if (typeStr.equals("CSV_IMPORT")) typeStr = "CSV_PROCESS";
+        task.setType(TaskType.valueOf(typeStr));
         task.setPayload(dto.getPayload());
         task.setResult(dto.getResult());
         task.setError(dto.getError());
-
         if (dto.getExecutionTime() != null && !dto.getExecutionTime().isBlank()) {
             task.setExecutionTime(Long.parseLong(dto.getExecutionTime()));
         }
-
         return task;
     }
 }
